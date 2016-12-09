@@ -91,6 +91,7 @@ public class PCollectionList<T> implements PInput, POutput {
    *
    * <p>Longer PCollectionLists can be created by calling
    * {@link #and} on the result.
+   * 静态方法不能使用类里面的型参，只能使用自己定义的型参。因此静态方法前面都对型参进行了重新申明。
    */
   public static <T> PCollectionList<T> of(Iterable<PCollection<T>> pcs) {
     Iterator<PCollection<T>> pcsIter = pcs.iterator();
