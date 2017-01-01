@@ -1136,7 +1136,7 @@ public class Combine {
    *   }
    *   public String extractOutput(String key, Accum accum) {
    *     return key + accum.s;
-   *   
+   *
    * }
    * PCollection<KV<String, Integer>> pc = ...;
    * PCollection<KV<String, String>> pc2 = pc.apply(

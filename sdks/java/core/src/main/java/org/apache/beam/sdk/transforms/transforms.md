@@ -1,4 +1,6 @@
-# Transform Package JavaDoc
+# Beam的Transform
+
+对Beam的SDK中的Transform包（可能是所有使用Beam开发应用程序的最常用的包吧）的代码随意走读，JavaDoc走读笔记。
 
 ## Class概览
 
@@ -116,6 +118,8 @@
 
 
 
+
+
 # 汇总计算
 
 从类列表上可以看到Combine相关的类有4中类别。一种是Combine，一种是CombineFns，一种是CombineWithContext。最后是各种已经实现的汇总统计方法，如Sum, Min, Max,UV估算，采样等等。我们先来看看通用性强的Combine, CombineFns，然后再过一下內建的统计方法。
@@ -168,48 +172,11 @@ Combine.Globally, Combine.PerKey和Combine.GroupedValues都可以使用上述的
 
 ### Combine.KeyedCombineFn
 
-    A {@code KeyedCombineFn<K, InputT, AccumT, OutputT>} specifies how to combine
-    a collection of input values of type {@code InputT}, associated with
-    a key of type {@code K}, into a single output value of type
-    {@code OutputT}.  It does this via one or more intermediate mutable
-    accumulator values of type {@code AccumT}.
-       
-    <p>The overall process to combine a collection of input
-    {@code InputT} values associated with an input {@code K} key into a
-    single output {@code OutputT} value is as follows:
-       
-    <ol>
-       
-    <li> The input {@code InputT} values are partitioned into one or more
-    batches.
-       
-    <li> For each batch, the {@link #createAccumulator} operation is
-    invoked to create a fresh mutable accumulator value of type
-    {@code AccumT}, initialized to represent the combination of zero
-    values.
-       
-    <li> For each input {@code InputT} value in a batch, the
-    {@link #addInput} operation is invoked to add the value to that
-    batch's accumulator {@code AccumT} value.  The accumulator may just
-    record the new value (e.g., if {@code AccumT == List<InputT>}, or may do
-    work to represent the combination more compactly.
-       
-    <li> The {@link #mergeAccumulators} operation is invoked to
-    combine a collection of accumulator {@code AccumT} values into a
-    single combined output accumulator {@code AccumT} value, once the
-    merging accumulators have had all all the input values in their
-    batches added to them.  This operation is invoked repeatedly,
-    until there is only one accumulator value left.
-       
-    <li> The {@link #extractOutput} operation is invoked on the final
-    accumulator {@code AccumT} value to get the output {@code OutputT} value.
-       
-    </ol>
-       
-    <p>All of these operations are passed the {@code K} key that the
-    values being combined are associated with.
-       
-    <p>For example:
+KeyedCombineFn和CombineFn基本一致。唯一的区别在于输入值是key value对。汇总是按key进行的，因此key伴随了所有主要的接口和动作。
+
+下面的例子把所有key相同的字符串拼接到一个长字符串中然后输出。
+
+
 ```JAVA
     public class ConcatFn
         extends KeyedCombineFn<String, Integer, ConcatFn.Accum, String> {
@@ -240,22 +207,85 @@ Combine.Globally, Combine.PerKey和Combine.GroupedValues都可以使用上述的
     } 
 ```
 
-    <p>Keyed combining functions used by {@link Combine.PerKey},
-    {@link Combine.GroupedValues}, and {@code PTransforms} derived
-    from them should be <i>associative</i> and <i>commutative</i>.
-    Associativity is required because input values are first broken
-    up into subgroups before being combined, and their intermediate
-    results further combined, in an arbitrary tree structure.
-    Commutativity is required because any order of the input values
-    is ignored when breaking up input values into groups.
 
 
-### Combine.Globally
+### Combine.IterableCombineFn
 
-输入： PCollection<InputT>。 
+IterableCombineFn能够把一个普通的接受Iterable<v>的 Serilizable Function包装成一个简单接受V的CombineFn。 是一个内部经常使用的工具类。
 
-输出： PCollection<OutputT>。 
+SimpleCombineFn是IterableCombineFn的早期版本。目前已经声明为废弃中的接口。不建议再使用SimpleCombineFn。
 
-输入输出的类型InputT和OutputT经常相同，不过这不是必须的。转换的逻辑由CombineFn(InputT, AccumT, OutputT)定义。常见的汇总统计函数有求和，求最大最小值，平均值，统计汇总，布尔操作等。如果输入数据使用的是GlobalWindows，那么如果输入为空，GlobalWindow会有一条默认的输出。如果你使用的是其他类型的窗口，那么必须调用withoutDefaults或者asSingletonView。因为默认值无法赋给一个单独的窗口。序列化用的Coder默认根据CombineFn的输出类型推断出来。
+### Combine.AccumulatingCombineFn
 
-例子：PCollection<Integer> sum = pc.apply(Combine.globally(new Sum.SumIntegerFn()));
+这个类预定义了累加器的接口（AccumulatingCombineFn.Accumulator)，并且把相关的处理逻辑进行了封装，因此使用上比直接使用CombineFn相对要简明一点。比如说，上面的例子用AccumulatingCombineFn可以实现的稍微更简短一点：
+
+```Java
+public class AverageFn
+  extends AccumulatingCombineFn<Integer, AverageFn.Accum, Double> {
+public Accum createAccumulator() {
+  return new Accum();
+}
+public class Accum
+    extends AccumulatingCombineFn<Integer, AverageFn.Accum, Double>
+            .Accumulator {
+  private int sum = 0;
+  private int count = 0;
+  public void addInput(Integer input) {
+    sum += input;
+    count++;
+  }
+  public void mergeAccumulator(Accum other) {
+    sum += other.sum;
+    count += other.count;
+  }
+  public Double extractOutput() {
+    return ((double) sum) / count;
+  }
+}
+}
+PCollection<Integer> pc = ...;
+PCollection<Double> average = pc.apply(Combine.globally(new AverageFn()));
+```
+
+
+
+### Combine.BinaryCombineFn 和BinaryCombineIntegerFn, BinaryCombineDoubleFn, BinaryCombineLongFn
+
+这几个CombineFn都是为了便利于定义支持两两合并操作的汇总计算。BinaryCombineFn是一个抽象类，而其余几个是针对常见基本类型的抽象类。注意它们之间不存在继承关系。
+
+Holder是BinaryCombineFn使用的累加器的类型，用来存储中间状态用。
+
+而几个CombineFn中都有identity()方法，这个可能比较难以理解，这里拿出来单独说一下。这个方法用来返回一个初始值，用来和第一条到达的输入数据开始进行两两合并汇总。因此，针对你要实现的汇总计算，必须要谨慎地选择identity().
+
+举个例子，如果你要实现加法，那么理想的identity()是返回0，而如果要实现乘法运算，那么合适的identity()是1。就像JavaDoc中注释的那样，一个identity()的返回值e是应该对所有的可能输入值x都满足：
+
+```Java
+apply(e, x) == apply(x, e) == x
+```
+
+即：满足交换律，满足参与运算后不会影响运算汇总结果。
+
+其余的接口，方法和CombineFn相同，不再繁叙。
+
+### Combine.Globally和Combine.GloballyAsSingletonView
+
+和上面的CombineFn不同，这两者都是PTransform，而不单单是CombineFn。 PTransform使用CombineFn，按照CombineFn制定的逻辑处理数据并把结果返回。这两者大概是这样一个关系。
+
+Globally对每个窗口中的数据进行全局汇总（无其他维度参加），产生一条输出数据。输出数据的类型（OutputT）可能和输入数据的类型相同，也可以是完全不同。这个汇总的逻辑由构造函数中传入的CombineFn进行处理。常见的聚合操作有求和，求最大最小值，均值等等。
+
+例子
+
+```Java
+PCollection<Integer> pc = ...;
+   PCollection<Integer> sum = pc.apply(
+   		Combine.globally(new Sum.SumIntegerFn()));
+```
+
+合并的操作可以并行执行。首先是每一部分输入分别计算汇总得到中间结果。然后中间结果进一步进行合并汇总。整个合并过程如同一颗树一样，从叶子节点开始慢慢合并，直到得到一个唯一的结果。
+
+如果输入窗口是全局窗口（GlobalWindos)， 那么当数据输入为空时，GlobalWindow的一个默认值会成为默认数据输出。而如果输入窗口是其他类型的窗口，那么你应该调用withoutDefaults或者是asSingletonView。这是因为默认值无法自动赋给一个单独的窗口。
+
+默认地，输出的Coder和CombineFn的输出的Coder一致。
+
+后面还可以参考PerKey和 GroupedValues，它们对处理K,V类型的数据非常有用。
+
