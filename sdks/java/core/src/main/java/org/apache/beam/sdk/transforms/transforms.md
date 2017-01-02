@@ -128,7 +128,11 @@
 
 Combine因为构造器是私有的，无法初始化。所以本身只是一个容器，有意义的是它内部定义的一系列的静态类。这也是Beam中常见的设计模式。把类当做命名空间来用，而这个命名空间里的不同语义实现作为静态的内部类进行定义。这样SDK的使用者能够获得相对更能体现语义含义的接口。不好的地方就是每个类的代码都相当长，对SDK的开发者而言有一定维护复杂度的提升。
 
-### Combine.CombineFn
+
+
+### Combine中的 CombineFn
+
+#### Combine.CombineFn
 
  CombineFn<InputT, AccumT, OutputT>} 定义了如何把一组类型为InputT的集合汇总为一条类型为OutputT的输出。在汇总的过程中可能还要需要用到一到多个类型为AccumT的中间可变状态累加器(Accumulator)。整个汇总的过程大概可以分为以下几个步骤。
 
@@ -170,7 +174,7 @@ Combine因为构造器是私有的，无法初始化。所以本身只是一个�
 
 Combine.Globally, Combine.PerKey和Combine.GroupedValues都可以使用上述的Combine Function。从它们派生的PTransform只能支持符合交换律（Commutative)和结合律（associative)的运算逻辑。需要满足结合律是因为输入值先是被分到了很多小组，然后计算出中间结果进行合并，类似一个任意的数状结构。必须满足交换律是因为我们在把输入值分组时不考虑输入值的顺序性。
 
-### Combine.KeyedCombineFn
+#### Combine.KeyedCombineFn
 
 KeyedCombineFn和CombineFn基本一致。唯一的区别在于输入值是key value对。汇总是按key进行的，因此key伴随了所有主要的接口和动作。
 
@@ -209,13 +213,13 @@ KeyedCombineFn和CombineFn基本一致。唯一的区别在于输入值是key va
 
 
 
-### Combine.IterableCombineFn
+#### Combine.IterableCombineFn
 
 IterableCombineFn能够把一个普通的接受Iterable<v>的 Serilizable Function包装成一个简单接受V的CombineFn。 是一个内部经常使用的工具类。
 
 SimpleCombineFn是IterableCombineFn的早期版本。目前已经声明为废弃中的接口。不建议再使用SimpleCombineFn。
 
-### Combine.AccumulatingCombineFn
+#### Combine.AccumulatingCombineFn
 
 这个类预定义了累加器的接口（AccumulatingCombineFn.Accumulator)，并且把相关的处理逻辑进行了封装，因此使用上比直接使用CombineFn相对要简明一点。比如说，上面的例子用AccumulatingCombineFn可以实现的稍微更简短一点：
 
@@ -249,7 +253,7 @@ PCollection<Double> average = pc.apply(Combine.globally(new AverageFn()));
 
 
 
-### Combine.BinaryCombineFn 和BinaryCombineIntegerFn, BinaryCombineDoubleFn, BinaryCombineLongFn
+#### Combine.BinaryCombineFn 和BinaryCombineIntegerFn, BinaryCombineDoubleFn, BinaryCombineLongFn
 
 这几个CombineFn都是为了便利于定义支持两两合并操作的汇总计算。BinaryCombineFn是一个抽象类，而其余几个是针对常见基本类型的抽象类。注意它们之间不存在继承关系。
 
@@ -267,11 +271,13 @@ apply(e, x) == apply(x, e) == x
 
 其余的接口，方法和CombineFn相同，不再繁叙。
 
-### Combine.Globally和Combine.GloballyAsSingletonView
+### Combine中的PTransform
+
+#### Combine.Globally和Combine.GloballyAsSingletonView
 
 和上面的CombineFn不同，这两者都是PTransform，而不单单是CombineFn。 PTransform使用CombineFn，按照CombineFn制定的逻辑处理数据并把结果返回。这两者大概是这样一个关系。
 
-Globally对每个窗口中的数据进行全局汇总（无其他维度参加），产生一条输出数据。输出数据的类型（OutputT）可能和输入数据的类型相同，也可以是完全不同。这个汇总的逻辑由构造函数中传入的CombineFn进行处理。常见的聚合操作有求和，求最大最小值，均值等等。
+Globally对每个窗口中的数据进行全局汇总（无维度参加），产生一条输出数据。输出数据的类型（OutputT）可能和输入数据的类型相同，也可以是完全不同。这个汇总的逻辑由构造函数中传入的CombineFn进行处理。常见的聚合操作有求和，求最大最小值，均值等等。
 
 例子
 
@@ -283,9 +289,52 @@ PCollection<Integer> pc = ...;
 
 合并的操作可以并行执行。首先是每一部分输入分别计算汇总得到中间结果。然后中间结果进一步进行合并汇总。整个合并过程如同一颗树一样，从叶子节点开始慢慢合并，直到得到一个唯一的结果。
 
-如果输入窗口是全局窗口（GlobalWindos)， 那么当数据输入为空时，GlobalWindow的一个默认值会成为默认数据输出。而如果输入窗口是其他类型的窗口，那么你应该调用withoutDefaults或者是asSingletonView。这是因为默认值无法自动赋给一个单独的窗口。
+如果输入窗口是全局窗口（GlobalWindos)， 那么当数据输入为空时，GlobalWindow的一个默认值会成为默认数据输出。而如果输入窗口是其他类型的窗口，那么你应该调用withoutDefaults（告诉系统如果没有输入那么就不要吐出默认输出）或者是asSingletonView（返回GloballyAsSingletonView，默认值由CombineFn得默认值给出）。这是因为默认值无法自动赋给一个单独非全局性窗口。
 
 默认地，输出的Coder和CombineFn的输出的Coder一致。
 
 后面还可以参考PerKey和 GroupedValues，它们对处理K,V类型的数据非常有用。
+
+GloballyAsSingletonView和 Globally完全一致。区别在于前者返回的是PCollectionView，而后者是PCollection。
+
+这里单独提一下fanout。fanout机制是为了降低全局汇总节点的压力，在汇总前增加一些中间节点进行并行汇总，然后把结果输出给最后的全局节点进行最后汇总。fanout参数设置了中间节点的个数。
+
+#### Combine.PerKey Combine.PerKeyWithHotKeyFanout
+
+Combine.PerKey接受KV形式的输入，按Key对数据进行分组，按指定的Combine函数对数据进行聚合，返回KV形式的汇总结果。输入输出数据的K相同，V的数据类型一般也相同。
+
+Combine.PerKey可以看做是GroupByKey + Combine.GroupedValues的快捷形式，关于如何进行Key的等值比较和默认的输出Coder如何确定可以参考这两个组件的定义。
+
+```Java
+ PCollection<KV<String, Double>> salesRecords = ...;
+ PCollection<KV<String, Double>> totalSalesPerPerson =
+     salesRecords.apply(Combine.<String, Double, Double>perKey(
+         new Sum.SumDoubleFn()));
+ }
+```
+每一个输出的元素都带有和输入流一样的窗口，时间戳则是窗口结束边沿的时间戳。并且PCollection上也有和输入相同的时间窗口函数。如果下游有新的汇总处理，这些窗口属性会影响新的汇总。
+
+而PerKeyWithHotKeyFanout能够自动对热键进行Fanout操作，避免数据倾斜带来的影响。具体代码比较长，细节这里就不一一覆盖了（后续仔细阅读后可以再补充这一部分。而且前面Globally的fanout的支持，也是在这一部分当中实现的）。
+
+#### Combine.GroupedValues
+
+GroupedValues是针对已经按Key已经分好组的数据按指定的CombineFn进行汇总操作的PTransform。因此，它只接受PCollection<KV<K,Iterable<InputT>>>类型的输入。一般和GroupByKey一起工作，而接受的CombineFn是KeyedCombineFn。输出通常也是带Key 的PCollection，也就是PCollection<KV<K,OutputT>>。通常InputT和OutputT相同，但不是必须的。
+
+例子： 
+
+```Java
+ PCollection<KV<String, Integer>> pc = ...;
+ PCollection<KV<String, Iterable<Integer>>> groupedByKey = pc.apply(
+     new GroupByKey<String, Integer>());
+ PCollection<KV<String, Integer>> sumByKey = groupedByKey.apply(
+     Combine.<String, Integer>groupedValues(
+         new Sum.SumIntegerFn()));
+ } 
+```
+上面曾经说过，PerKey是GroupedByKey和Combine.GroupedValues的合体。
+整个汇总的过程中，每个Key对应的汇总是独立进行的，而同一个Key的汇总也是可以并行进行的，采用的方式就是前面提到过的树状汇总方法。
+默认的输出的Coder和输入的Coder方式是一样的，从输入推断而来。
+每一个输出的元素都带有和输入流一样的窗口，时间戳则是窗口结束边沿的时间戳。并且PCollection上也有和输入相同的时间窗口函数。如果下游有新的汇总处理，这些窗口属性会影响新的汇总。
+
+
 
