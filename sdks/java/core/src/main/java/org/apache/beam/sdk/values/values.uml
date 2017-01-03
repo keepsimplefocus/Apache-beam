@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>org.apache.beam.sdk.values</OriginalElement>
+  <nodes>
+    <node x="4.625" y="125.0">org.apache.beam.sdk.values.POutputValueBase</node>
+    <node x="-267.3697585768742" y="55.34307496823385">org.apache.beam.sdk.values.KV</node>
+    <node x="-267.4002541296061" y="270.9339263024143">org.apache.beam.sdk.values.TypeDescriptor</node>
+    <node x="670.875" y="125.0">org.apache.beam.sdk.values.PBegin</node>
+    <node x="491.2388818297331" y="502.65565438373574">org.apache.beam.sdk.values.TupleTagTest</node>
+    <node x="141.5" y="295.0">org.apache.beam.sdk.values.TypedPValue</node>
+    <node x="246.14993646759842" y="506.4739517153748">org.apache.beam.sdk.values.TypedPValueTest</node>
+    <node x="-266.9822109275731" y="329.7141041931384">org.apache.beam.sdk.values.TupleTagList</node>
+    <node x="-262.561626429479" y="384.45997458703937">org.apache.beam.sdk.values.TypeParameter</node>
+    <node x="501.875" y="125.0">org.apache.beam.sdk.values.PCollectionList</node>
+    <node x="-258.25540025412965" y="438.99618805590853">org.apache.beam.sdk.values.TupleTag</node>
+    <node x="246.5451080050825" y="445.14612452350696">org.apache.beam.sdk.values.TypeDescriptorsTest</node>
+    <node x="-267.59593392630234" y="113.48157560355787">org.apache.beam.sdk.values.PCollectionListTest</node>
+    <node x="316.875" y="125.0">org.apache.beam.sdk.values.PCollectionTuple</node>
+    <node x="476.75" y="0.0">org.apache.beam.sdk.values.PInput</node>
+    <node x="-267.6048284625159" y="162.28716645489203">org.apache.beam.sdk.values.TimestampedValue</node>
+    <node x="0.0" y="210.0">org.apache.beam.sdk.values.PDone</node>
+    <node x="485.9339263024142" y="444.08513341804314">org.apache.beam.sdk.values.TimestampedValueTest</node>
+    <node x="248.3519695044473" y="567.3761118170268">org.apache.beam.sdk.values.PDoneTest</node>
+    <node x="147.5" y="380.0">org.apache.beam.sdk.values.PCollection</node>
+    <node x="109.0" y="210.0">org.apache.beam.sdk.values.PValueBase</node>
+    <node x="236.375" y="0.0">org.apache.beam.sdk.values.POutput</node>
+    <node x="206.875" y="125.0">org.apache.beam.sdk.values.PValue</node>
+    <node x="256.0" y="210.0">org.apache.beam.sdk.values.PCollectionView</node>
+    <node x="-5.304955527318953" y="513.4752223634054">org.apache.beam.sdk.values.TypeDescriptorTest</node>
+    <node x="-266.50698856416767" y="217.88437102922495">org.apache.beam.sdk.values.TypeDescriptors</node>
+    <node x="-3.4612452350697254" y="569.4980940279543">org.apache.beam.sdk.values.KVTest</node>
+    <node x="-7.186785260482793" y="447.2681067344346">org.apache.beam.sdk.values.PCollectionTupleTest</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="org.apache.beam.sdk.values.PCollectionList" target="org.apache.beam.sdk.values.PInput">
+      <point x="37.25" y="-17.5" />
+      <point x="613.625" y="65.0" />
+      <point x="531.75" y="65.0" />
+      <point x="11.0" y="17.5" />
+    </edge>
+    <edge source="org.apache.beam.sdk.values.PCollectionTuple" target="org.apache.beam.sdk.values.POutput">
+      <point x="-41.25" y="-17.5" />
+      <point x="358.125" y="85.0" />
+      <point x="300.125" y="85.0" />
+      <point x="12.75" y="17.5" />
+    </edge>
+    <edge source="org.apache.beam.sdk.values.PValue" target="org.apache.beam.sdk.values.PInput">
+      <point x="22.5" y="-17.5" />
+      <point x="274.375" y="95.0" />
+      <point x="487.75" y="95.0" />
+      <point x="-33.0" y="17.5" />
+    </edge>
+    <edge source="org.apache.beam.sdk.values.PValueBase" target="org.apache.beam.sdk.values.PValue">
+      <point x="30.75" y="-17.5" />
+      <point x="201.25" y="185.0" />
+      <point x="221.875" y="185.0" />
+      <point x="-30.0" y="17.5" />
+    </edge>
+    <edge source="org.apache.beam.sdk.values.PCollectionView" target="org.apache.beam.sdk.values.PValue">
+      <point x="0.0" y="-17.5" />
+      <point x="335.5" y="185.0" />
+      <point x="281.875" y="185.0" />
+      <point x="30.0" y="17.5" />
+    </edge>
+    <edge source="org.apache.beam.sdk.values.PCollectionList" target="org.apache.beam.sdk.values.POutput">
+      <point x="-37.25" y="-17.5" />
+      <point x="539.125" y="75.0" />
+      <point x="325.625" y="75.0" />
+      <point x="38.25" y="17.5" />
+    </edge>
+    <edge source="org.apache.beam.sdk.values.PCollection" target="org.apache.beam.sdk.values.TypedPValue">
+      <point x="0.0" y="-17.5" />
+      <point x="0.0" y="17.5" />
+    </edge>
+    <edge source="org.apache.beam.sdk.values.PBegin" target="org.apache.beam.sdk.values.PInput">
+      <point x="0.0" y="-17.5" />
+      <point x="716.375" y="55.0" />
+      <point x="553.75" y="55.0" />
+      <point x="33.0" y="17.5" />
+    </edge>
+    <edge source="org.apache.beam.sdk.values.PValue" target="org.apache.beam.sdk.values.POutput">
+      <point x="-22.5" y="-17.5" />
+      <point x="229.375" y="85.0" />
+      <point x="274.625" y="85.0" />
+      <point x="-12.75" y="17.5" />
+    </edge>
+    <edge source="org.apache.beam.sdk.values.PDone" target="org.apache.beam.sdk.values.POutputValueBase">
+      <point x="0.0" y="-17.5" />
+      <point x="44.5" y="185.0" />
+      <point x="48.375" y="185.0" />
+      <point x="-43.75" y="17.5" />
+    </edge>
+    <edge source="org.apache.beam.sdk.values.TypedPValue" target="org.apache.beam.sdk.values.PValue">
+      <point x="34.0" y="-17.5" />
+      <point x="243.5" y="270.0" />
+      <point x="245.5" y="270.0" />
+      <point x="245.5" y="185.0" />
+      <point x="251.875" y="185.0" />
+      <point x="0.0" y="17.5" />
+    </edge>
+    <edge source="org.apache.beam.sdk.values.POutputValueBase" target="org.apache.beam.sdk.values.POutput">
+      <point x="0.0" y="-17.5" />
+      <point x="92.125" y="75.0" />
+      <point x="249.125" y="75.0" />
+      <point x="-38.25" y="17.5" />
+    </edge>
+    <edge source="org.apache.beam.sdk.values.TypedPValue" target="org.apache.beam.sdk.values.PValueBase">
+      <point x="-34.0" y="-17.5" />
+      <point x="175.5" y="270.0" />
+      <point x="170.5" y="270.0" />
+      <point x="0.0" y="17.5" />
+    </edge>
+    <edge source="org.apache.beam.sdk.values.PValueBase" target="org.apache.beam.sdk.values.POutputValueBase">
+      <point x="-30.75" y="-17.5" />
+      <point x="139.75" y="185.0" />
+      <point x="135.875" y="185.0" />
+      <point x="43.75" y="17.5" />
+    </edge>
+    <edge source="org.apache.beam.sdk.values.PCollectionTuple" target="org.apache.beam.sdk.values.PInput">
+      <point x="41.25" y="-17.5" />
+      <point x="440.625" y="105.0" />
+      <point x="509.75" y="105.0" />
+      <point x="-11.0" y="17.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="0.9425149700598803" x="387.5" y="407.5" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
